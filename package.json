@@ -1,0 +1,28 @@
+{
+   "name": "nitthub-server",
+   "version": "1.0.0",
+   "description": "",
+   "main": "server.js",
+   "scripts": {
+      "start": "nodemon server.js",
+      "test": "echo \"Error: no test specified\" && exit 1"
+   },
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/hariesh-s/nitthub-server.git"
+   },
+   "author": "",
+   "license": "ISC",
+   "bugs": {
+      "url": "https://github.com/hariesh-s/nitthub-server/issues"
+   },
+   "homepage": "https://github.com/hariesh-s/nitthub-server#readme",
+   "dependencies": {
+      "dotenv": "^16.0.3",
+      "express": "^4.18.2",
+      "mongoose": "^6.8.2"
+   },
+   "devDependencies": {
+      "nodemon": "^2.0.20"
+   }
+}
