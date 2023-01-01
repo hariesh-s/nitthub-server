@@ -24,7 +24,7 @@ async function handleRegistration(req, res) {
          username: username,
          password: hashed_password,
       });
-      res.status(201).json({ message: "new user successfully created" });
+      res.status(201).json({ message: "New user successfully created!" });
    } catch (err) {
       res.status(500).json({ message: err });
    }
