@@ -24,6 +24,7 @@ connectDB();
 // routes
 app.use("/api/auth", require("./routers/login"));
 app.use("/api/register", require("./routers/register"));
+app.use("/api/edu-supplies", require("./routers/edu-supplies"))
 
 mongoose.connection.once("open", () => {
    console.log("database connected!");
