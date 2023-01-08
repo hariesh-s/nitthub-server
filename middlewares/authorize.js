@@ -10,7 +10,7 @@ async function isAuthorized(req, res, next) {
    const token = Authorization.split(" ")[1];
 
    try {
-      const { _id } = jwt.verify(token, process.env.SECRET_KEY);
+      const { _id } = jwt.verify(token, process.env.SECRET_KEY_ACCESS);
 
       // checking if the _id is present in db
       req.user = await User.findOne({ _id }).select("_id");
