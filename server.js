@@ -22,7 +22,7 @@ const connectDB = require("./dbConfig");
 connectDB();
 
 // routes
-app.use("/api/auth", require("./routers/login"));
+app.use("/api/authenticate", require("./routers/authenticate"));
 app.use("/api/register", require("./routers/register"));
 app.use("/api/edu-supplies", require("./routers/edu-supplies"))
 

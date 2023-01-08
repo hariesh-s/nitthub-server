@@ -3,7 +3,7 @@ const {
    handleAuthentication,
    handleLogout,
    isUserLoggedIn,
-} = require("../controllers/login");
+} = require("../controllers/authenticate");
 
 router.get("/", isUserLoggedIn);
 router.post("/", handleAuthentication);
