@@ -5,8 +5,8 @@ const {
    isUserLoggedIn,
 } = require("../controllers/authenticate");
 
-router.get("/", isUserLoggedIn);
+// router.get("/", isUserLoggedIn);
 router.post("/", handleAuthentication);
-router.delete("/", handleLogout);
+// router.delete("/", handleLogout);
 
 module.exports = router;
