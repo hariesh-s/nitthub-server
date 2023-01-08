@@ -11,9 +11,9 @@ async function handleAuthentication(req, res) {
          .status(400)
          .json({ message: "Username and password are required!" });
 
-   const user_found = await User.findOne({ username: username });
+   const user_found = await User.findOne({ username });
 
-   if (!user_found) return res.status(401).json({ message: "Unauthorized!" });
+   if (!user_found) return res.status(401).json({ message: "Unauthorized request!" });
 
    const password_match = await bcrypt.compare(password, user_found.password);
 
@@ -26,7 +26,7 @@ async function handleAuthentication(req, res) {
       });
 
       res.json({ message: "Logged in successfully!", token });
-   } else return res.status(401).json({ message: "Unauthorized!" });
+   } else return res.status(401).json({ message: "Unauthorized request!" });
 }
 
 // function handleLogout(req, res) {
