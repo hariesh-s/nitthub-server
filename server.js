@@ -33,7 +33,7 @@ connectDB();
 // routes
 app.use("/api/authenticate", require("./routers/authenticate"));
 app.use("/api/register", require("./routers/register"));
-app.use("/api/edu-supplies", require("./routers/edu-supplies"));
+app.use("/api/study-materials", require("./routers/studyMaterial"));
 
 mongoose.connection.once("open", () => {
    console.log("database connected!");
