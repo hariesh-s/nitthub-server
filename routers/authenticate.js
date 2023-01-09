@@ -5,11 +5,10 @@ const {
    isUserLoggedIn,
    renewToken,
 } = require("../controllers/authenticate");
+const isAuthorized = require("../middlewares/authorize")
 
-// router.get("/", isUserLoggedIn);
+router.get("/", isAuthorized, isUserLoggedIn);
 router.post("/", handleAuthentication);
 // router.delete("/", handleLogout);
-
-router.get("/refresh", renewToken)
 
 module.exports = router;

@@ -2,12 +2,13 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 async function isAuthorized(req, res, next) {
-   const { Authorization } = req.headers;
+   const { authorization } = req.headers;
+   console.log(req.headers)
+   console.log(authorization)
+   if (!authorization)
+      return res.status(401).json({ message: "Authorization header mandatory!" });
 
-   if (!Authorization)
-      res.status(401).json({ message: "Authorization token mandatory!" });
-
-   const token = Authorization.split(" ")[1];
+   const token = authorization.split(" ")[1];
 
    try {
       const { _id } = jwt.verify(token, process.env.SECRET_KEY_ACCESS);
@@ -17,7 +18,7 @@ async function isAuthorized(req, res, next) {
 
       next();
    } catch (err) {
-      res.status(401).json({ message: "User not authorized!" });
+      res.status(403).json({ message: "User not authorized!" });
    }
 }
 

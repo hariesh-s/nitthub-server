@@ -36,7 +36,7 @@ async function handleAuthentication(req, res) {
          sameSite: "None",
          maxAge: 1 * 24 * 60 * 60 * 1000,
       });
-
+      console.log(access_token)
       res.status(200).json({
          message: "Logged in successfully!",
          access_token,
@@ -56,15 +56,16 @@ async function handleAuthentication(req, res) {
 //    });
 // }
 
-// function isUserLoggedIn(req, res) {
-//    const user_session = req.session.user; // was created during login
-//    if (user_session)
-//       return res.json({ message: "Authenticated successfully!", user_session });
-//    else return res.status(401).json({ message: "Unauthorized!" });
-// }
-
-function renewToken(req, res) {
-   
+function isUserLoggedIn(req, res) {
+   // middleware does all the checking
+   // so if the req reaches the endpt
+   // user is logged in
+   console.log("success")
+   res.sendStatus(200)
 }
 
-module.exports = { handleAuthentication, renewToken };
+// function renewToken(req, res) {
+   
+// }
+
+module.exports = { handleAuthentication, isUserLoggedIn };
