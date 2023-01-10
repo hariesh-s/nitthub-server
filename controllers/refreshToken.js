@@ -1,23 +1,21 @@
 const User = require("../models/User");
 
-async function generateNewToken() {
+async function generateNewToken(req, res) {
    const cookies = req.cookies;
    if (!cookies?.jwt) return res.sendStatus(401);
    const refreshToken = cookies.jwt;
 
-   const foundUser = User.find(
-      (person) => person.refreshToken === refreshToken
-   );
-   if (!foundUser) return res.status(403).json({ message: "User not found!" });
+   const user_found = User.findOne({ refreshToken });
+   if (!user_found) return res.status(403).json({ message: "User not found!" });
 
    try {
       const { _id } = jwt.verify(token, process.env.SECRET_KEY_REFRESH);
 
-      if (_id !== foundUser._id)
+      if (_id !== user_found._id)
          return res.status(403).json({ message: "User not authorized!" });
 
       const access_token = jwt.sign(payload, process.env.SECRET_KEY_ACCESS, {
-         expiresIn: 1000 * 60 * 5,
+         expiresIn: 20, // in seconds
       });
 
       res.status(200).json({

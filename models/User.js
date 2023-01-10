@@ -13,6 +13,9 @@ const userSchema = new Schema({
    refreshToken: {
       type: String,
    },
+   uploads: {
+      type: Array,
+   },
 });
 
 module.exports = mongoose.model("User", userSchema);

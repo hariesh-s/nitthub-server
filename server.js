@@ -34,7 +34,9 @@ connectDB();
 app.use("/api/authenticate", require("./routers/authenticate"));
 app.use("/api/register", require("./routers/register"));
 app.use("/api/study-materials", require("./routers/studyMaterial"));
-app.use("/api/refresh-token", require("./routers/refreshToken"))
+app.use("/api/refresh-token", require("./routers/refreshToken"));
+app.use("/api/download", require("./routers/download"));
+app.use("/api/upload", require("./routers/upload"));
 
 mongoose.connection.once("open", () => {
    console.log("database connected!");
