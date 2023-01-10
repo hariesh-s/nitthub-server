@@ -21,22 +21,29 @@ async function handleAuthentication(req, res) {
    if (password_match) {
       const payload = { _id: user_found._id, username: user_found.username };
 
-      // valid for 5 mins
       const access_token = jwt.sign(payload, process.env.SECRET_KEY_ACCESS, {
-         expiresIn: 1000 * 60 * 5,
+         expiresIn: 20, // in seconds
       });
 
-      // valid for 6 hours
       const refresh_token = jwt.sign(payload, process.env.SECRET_KEY_REFRESH, {
-         expiresIn: 1000 * 60 * 60 * 6,
+         expiresIn: 60 * 60 * 6, // in seconds
       });
 
-      res.cookie("rt-jwt", refresh_token, {
+      user_found.refreshToken = refresh_token;
+
+      try {
+         await user_found.save();
+      } catch (err) {
+         return res.status(500).json({ message: "Internal sever error" });
+      }
+
+      res.cookie("jwt", refresh_token, {
          httpOnly: true,
          sameSite: "None",
-         maxAge: 1 * 24 * 60 * 60 * 1000,
+         secure: true,
+         maxAge: 1000 * 60 * 60 * 6, // in milli seconds
       });
-      console.log(access_token)
+      console.log(access_token);
       res.status(200).json({
          message: "Logged in successfully!",
          access_token,
@@ -44,28 +51,42 @@ async function handleAuthentication(req, res) {
    } else return res.status(401).json({ message: "Unauthorized request!" });
 }
 
-// function handleLogout(req, res) {
-//    req.session.destroy((err) => {
-//       if (err) {
-//          console.log(err);
-//          res.send(err);
-//       }
-
-//       res.clearCookie(process.env.SESSION_SECRET);
-//       res.json({ message: "Logged out successfully!" });
-//    });
-// }
-
 function isUserLoggedIn(req, res) {
    // middleware does all the checking
    // so if the req reaches the endpt
    // user is logged in
-   console.log("success")
-   res.sendStatus(200)
+   console.log("success");
+   res.sendStatus(200);
 }
 
-// function renewToken(req, res) {
-   
-// }
+async function handleLogout(req, res) {
+   const cookies = req.cookies;
+   console.log(cookies)
+   // No content http error (cookie not present)
+   if (!cookies?.jwt) return res.status(204).json({ message: "No content!" });
 
-module.exports = { handleAuthentication, isUserLoggedIn };
+   // clear the cookie
+   res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+      maxAge: 1000 * 60 * 60 * 6, // in milli seconds
+   });
+
+   // reset the user's refresh token in db
+   const refreshToken = cookies.jwt;
+
+   const foundUser = await User.findOne({ refreshToken });
+   console.log(foundUser.username)
+   if (!foundUser) return res.sendStatus(204);
+
+   foundUser.refreshToken = "";
+   try {
+      await foundUser.save();
+      res.status(200).json({ message: "Successfully logged out!" });
+   } catch (err) {
+      res.status(500).json({ message: "Internal server error!" });
+   }
+}
+
+module.exports = { handleAuthentication, isUserLoggedIn, handleLogout };
