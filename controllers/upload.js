@@ -6,6 +6,8 @@ const { randomFillSync } = require("crypto");
 const eventEmitter = new EventEmitter();
 const StudyMaterial = require("../models/StudyMaterial");
 
+// used while creating paths to store 
+// files for security reasons
 const random = (() => {
    const buf = Buffer.alloc(16);
    return () => randomFillSync(buf).toString("hex");
@@ -116,4 +118,12 @@ function handleUpload(req, res) {
    });
 }
 
-module.exports = { handleUpload };
+function getUserUploads(req, res) {
+   // authorize middleware adds user to req
+   const user = req.user;
+   if (!user) return res.status(401).json({ message: "Not authorized!" });
+
+   res.status(200).json({ result: user.uploads })
+}
+
+module.exports = { handleUpload, getUserUploads };
