@@ -18,6 +18,10 @@ const StudyMaterial = new Schema({
       type: String,
       required: true,
    },
+   link: {
+      type: String,
+      required: true,
+   }
 });
 
 module.exports = mongoose.model("StudyMaterial", StudyMaterial);

@@ -50,7 +50,6 @@ function handleUpload(req, res) {
       switch (name) {
          case "material":
             materialPath = path.join(
-               __dirname,
                "..",
                "public",
                "materialsDB",
@@ -85,12 +84,13 @@ function handleUpload(req, res) {
          return res.status(409).json({ message: "Material already exists!" });
 
       try {
-         file.pipe(fs.createWriteStream(materialPath));
+         file.pipe(fs.createWriteStream(path.join(__dirname, materialPath)));
          const studyMaterial = await StudyMaterial.create({
             name: materialName,
-            owner: user._id,
+            owner: user.username,
             prof,
             course,
+            link: materialPath,
          });
 
          // adding material ID to uploads array in user document
