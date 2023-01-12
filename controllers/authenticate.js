@@ -22,7 +22,7 @@ async function handleAuthentication(req, res) {
       const payload = { _id: user_found._id, username: user_found.username };
 
       const access_token = jwt.sign(payload, process.env.SECRET_KEY_ACCESS, {
-         expiresIn: 20, // in seconds
+         expiresIn: 60, // in seconds
       });
 
       const refresh_token = jwt.sign(payload, process.env.SECRET_KEY_REFRESH, {
