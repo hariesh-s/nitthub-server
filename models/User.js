@@ -16,6 +16,9 @@ const userSchema = new Schema({
    uploads: {
       type: Array,
    },
+   downloads: {
+      type: Array,
+   }
 });
 
 module.exports = mongoose.model("User", userSchema);

@@ -25,7 +25,7 @@ function handleUpload(req, res) {
          .json({ message: "Need material details for upload!" });
 
    // declaring all variables we need
-   let [materialName, course, prof, materialPath] = ["", "", "", ""];
+   let [materialName, course, prof, materialPath, mimeType] = ["", "", "", "", ""];
    let ERROR = false;
 
    // busboy reads form data in the order of input elements in frontend.
@@ -33,14 +33,18 @@ function handleUpload(req, res) {
    // first and then the input element for file. So we "emit" our custom
    // "launchFinalPhase" event after busboy invokes the "file" event handler.
    req.busboy.on("field", (name, value, info) => {
+      console.log("in field ", name, " value ", value)
       switch (name) {
          case "materialName":
+            console.log("in field ", name, " value ", value)
             materialName = value;
             break;
          case "course":
+            console.log("in field ", name, " value ", value)
             course = value;
             break;
          case "prof":
+            console.log("in field ", name, " value ", value)
             prof = value;
             break;
          default:
@@ -49,6 +53,7 @@ function handleUpload(req, res) {
    });
 
    req.busboy.on("file", (name, file, info) => {
+      console.log("in file ", name, " info ", info)
       switch (name) {
          case "material":
             materialPath = path.join(
@@ -57,6 +62,7 @@ function handleUpload(req, res) {
                "materialsDB",
                `busboy-upload-${random()}-${info.filename}`
             );
+            mimeType = info.mimeType;
             break;
          default:
             ERROR = true;
@@ -71,6 +77,7 @@ function handleUpload(req, res) {
             .status(400)
             .json({ message: "Material details not labelled correctly!" });
 
+      console.log("final phase ", materialName, course, prof)
       if (!materialName || !course || !prof)
          return res
             .status(400)
@@ -93,6 +100,7 @@ function handleUpload(req, res) {
             prof,
             course,
             link: materialPath,
+            mimeType,
          });
 
          // adding material ID to uploads array in user document

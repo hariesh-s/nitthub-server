@@ -21,6 +21,9 @@ const StudyMaterial = new Schema({
    link: {
       type: String,
       required: true,
+   },
+   mimeType: {
+      type: String,
    }
 });
 

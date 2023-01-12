@@ -25,8 +25,8 @@ async function handleDownload(req, res) {
    // saving the material ID to user downloads
    user.downloads.push(materialID)
    await user.save()
-   
-   res.status(200).sendFile(path.join(__dirname, foundMaterial.link))
+
+   res.download(path.join(__dirname, foundMaterial.link))
 }
 
 function getUserDownloads(req, res) {
