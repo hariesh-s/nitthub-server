@@ -5,6 +5,7 @@ const { randomFillSync } = require("crypto");
 
 const eventEmitter = new EventEmitter();
 const StudyMaterial = require("../models/StudyMaterial");
+const User = require("../models/User");
 
 // used while creating paths to store 
 // files for security reasons
@@ -13,10 +14,14 @@ const random = (() => {
    return () => randomFillSync(buf).toString("hex");
 })();
 
-function handleUpload(req, res) {
+async function handleUpload(req, res) {
    // authorize middleware adds user to req
-   const user = req.user;
-   if (!user) return res.status(401).json({ message: "Not authorized!" });
+   const userID = req.userID;
+   if (!userID) return res.status(401).json({ message: "Not authorized!" });
+
+   // fetching only neccessary details 
+   // from user document using user id
+   const user = await User.findOne({ _id: userID }, { _id: false, username: true, uploads: true })
 
    // busboy middleware adds busboy to req
    if (!req.busboy)
@@ -117,7 +122,8 @@ function handleUpload(req, res) {
 
    eventEmitter.on("launchFinalPhase", executeFinalPhase);
 
-   req.pipe(req.busboy); // connect-busboy npm page says this is needed
+   // this is needed as per connect-busboy documentation
+   req.pipe(req.busboy);
 
    // have to remove all listeners before closing the request else it will crash 
    // the server on subsequent requests as all the listeners will be triggered
@@ -126,12 +132,15 @@ function handleUpload(req, res) {
    });
 }
 
-function getUserUploads(req, res) {
+async function getUserUploads(req, res) {
    // authorize middleware adds user to req
-   const user = req.user;
-   if (!user) return res.status(401).json({ message: "Not authorized!" });
+   const userID = req.userID;
+   if (!userID) return res.status(401).json({ message: "Not authorized!" });
 
-   res.status(200).json({ result: user.uploads })
+   // fetching only neccessary details 
+   // from user document using user id
+   const user = await User.findOne({ _id: userID }, { _id: false, downloads: true })
+   res.status(200).json({ result: user.downloads })
 }
 
 module.exports = { handleUpload, getUserUploads };

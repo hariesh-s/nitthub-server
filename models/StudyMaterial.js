@@ -24,6 +24,7 @@ const StudyMaterial = new Schema({
    },
    mimeType: {
       type: String,
+      required: true,
    }
 });
 
