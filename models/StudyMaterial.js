@@ -27,4 +27,13 @@ const StudyMaterial = new Schema({
    }
 });
 
+// indexing "StudyMaterial" at schema level 
+// (compound indexing) so if text search matches l
+// any of the fields, it wil return them
+StudyMaterial.index({
+   name: "text",
+   course: "text",
+   prof: "text",
+})
+
 module.exports = mongoose.model("StudyMaterial", StudyMaterial);
