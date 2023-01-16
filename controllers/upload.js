@@ -7,7 +7,7 @@ const eventEmitter = new EventEmitter();
 const StudyMaterial = require("../models/StudyMaterial");
 const User = require("../models/User");
 
-// used while creating paths to store 
+// used while creating paths to store
 // files for security reasons
 const random = (() => {
    const buf = Buffer.alloc(16);
@@ -19,9 +19,12 @@ async function handleUpload(req, res) {
    const userID = req.userID;
    if (!userID) return res.status(401).json({ message: "Not authorized!" });
 
-   // fetching only neccessary details 
+   // fetching only neccessary details
    // from user document using user id
-   const user = await User.findOne({ _id: userID }, { _id: false, username: true, uploads: true })
+   const user = await User.findOne(
+      { _id: userID },
+      { _id: false, username: true, uploads: true }
+   );
 
    // busboy middleware adds busboy to req
    if (!req.busboy)
@@ -30,7 +33,13 @@ async function handleUpload(req, res) {
          .json({ message: "Need material details for upload!" });
 
    // declaring all variables we need
-   let [materialName, course, prof, materialPath, mimeType] = ["", "", "", "", ""];
+   let [materialName, course, prof, materialPath, mimeType] = [
+      "",
+      "",
+      "",
+      "",
+      "",
+   ];
    let ERROR = false;
 
    // busboy reads form data in the order of input elements in frontend.
@@ -38,18 +47,18 @@ async function handleUpload(req, res) {
    // first and then the input element for file. So we "emit" our custom
    // "launchFinalPhase" event after busboy invokes the "file" event handler.
    req.busboy.on("field", (name, value, info) => {
-      console.log("in field ", name, " value ", value)
+      console.log("in field ", name, " value ", value);
       switch (name) {
          case "materialName":
-            console.log("in field ", name, " value ", value)
+            console.log("in field ", name, " value ", value);
             materialName = value;
             break;
          case "course":
-            console.log("in field ", name, " value ", value)
+            console.log("in field ", name, " value ", value);
             course = value;
             break;
          case "prof":
-            console.log("in field ", name, " value ", value)
+            console.log("in field ", name, " value ", value);
             prof = value;
             break;
          default:
@@ -58,7 +67,7 @@ async function handleUpload(req, res) {
    });
 
    req.busboy.on("file", (name, file, info) => {
-      console.log("in file ", name, " info ", info)
+      console.log("in file ", name, " info ", info);
       switch (name) {
          case "material":
             materialPath = path.join(
@@ -82,7 +91,7 @@ async function handleUpload(req, res) {
             .status(400)
             .json({ message: "Material details not labelled correctly!" });
 
-      console.log("final phase ", materialName, course, prof)
+      console.log("final phase ", materialName, course, prof);
       if (!materialName || !course || !prof)
          return res
             .status(400)
@@ -125,7 +134,7 @@ async function handleUpload(req, res) {
    // this is needed as per connect-busboy documentation
    req.pipe(req.busboy);
 
-   // have to remove all listeners before closing the request else it will crash 
+   // have to remove all listeners before closing the request else it will crash
    // the server on subsequent requests as all the listeners will be triggered
    req.on("close", () => {
       eventEmitter.removeListener("launchFinalPhase", executeFinalPhase);
@@ -137,10 +146,51 @@ async function getUserUploads(req, res) {
    const userID = req.userID;
    if (!userID) return res.status(401).json({ message: "Not authorized!" });
 
-   // fetching only neccessary details 
+   // fetching only neccessary details
    // from user document using user id
-   const user = await User.findOne({ _id: userID }, { _id: false, downloads: true })
-   res.status(200).json({ result: user.downloads })
+   const user = await User.findOne(
+      { _id: userID },
+      { _id: false, uploads: true }
+   );
+   
+   res.status(200).json({ result: user.uploads });
 }
 
-module.exports = { handleUpload, getUserUploads };
+async function deleteUpload(req, res) {
+   // authorize middleware adds user to req
+   const userID = req.userID;
+   if (!userID) return res.status(401).json({ message: "Not authorized!" });
+
+   const { materialID } = req.params;
+   if (!materialID)
+      return res
+         .status(400)
+         .json({ message: "Needed material ID for deletion!" });
+
+   try {
+      // deleting the study material first
+      const deletedMaterial = await StudyMaterial.findOneAndDelete({
+         _id: materialID,
+      });
+
+      // fetching only neccessary details
+      const user = await User.findOne(
+         { _id: userID },
+         { _id: false, uploads: true }
+      );
+
+      // removing the study material id from
+      // uploads array of user
+      const deleteIndex = user.uploads.indexOf(deletedMaterial._id);
+      if (deleteIndex >= 0 && deleteIndex < user.uploads.length) {
+         user.uploads.splice(deleteIndex, 1);
+         user.save();
+      }
+
+      res.status(200).json({ message: "Successfully deleted material!" });
+   } catch (error) {
+      res.status(404).json({ message: "Couldn't delete material! " + error });
+   }
+}
+
+module.exports = { handleUpload, getUserUploads, deleteUpload };
