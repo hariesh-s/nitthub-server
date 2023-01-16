@@ -1,5 +1,5 @@
 const path = require("path")
-
+const User = require("../models/User")
 const StudyMaterial = require("../models/StudyMaterial");
 
 async function handleDownload(req, res) {
@@ -9,7 +9,7 @@ async function handleDownload(req, res) {
 
    // fetching only neccessary details 
    // from user document using user id
-   const user = await User.findOne({ _id: userID }, { _id: false, downloads: true })
+   const user = await User.findOne({ _id: userID }, { downloads: true })
 
    if (!req.params)
       return res
@@ -40,7 +40,7 @@ async function getUserDownloads(req, res) {
 
    // fetching only neccessary details 
    // from user document using user id
-   const user = await User.findOne({ _id: userID }, { _id: false, downloads: true })
+   const user = await User.findOne({ _id: userID }, { downloads: true })
 
    res.status(200).json({ result: user.downloads })
 }

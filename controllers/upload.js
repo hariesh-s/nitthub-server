@@ -23,7 +23,7 @@ async function handleUpload(req, res) {
    // from user document using user id
    const user = await User.findOne(
       { _id: userID },
-      { _id: false, username: true, uploads: true }
+      { username: true, uploads: true }
    );
 
    // busboy middleware adds busboy to req
@@ -47,18 +47,14 @@ async function handleUpload(req, res) {
    // first and then the input element for file. So we "emit" our custom
    // "launchFinalPhase" event after busboy invokes the "file" event handler.
    req.busboy.on("field", (name, value, info) => {
-      console.log("in field ", name, " value ", value);
       switch (name) {
          case "materialName":
-            console.log("in field ", name, " value ", value);
             materialName = value;
             break;
          case "course":
-            console.log("in field ", name, " value ", value);
             course = value;
             break;
          case "prof":
-            console.log("in field ", name, " value ", value);
             prof = value;
             break;
          default:
@@ -67,7 +63,6 @@ async function handleUpload(req, res) {
    });
 
    req.busboy.on("file", (name, file, info) => {
-      console.log("in file ", name, " info ", info);
       switch (name) {
          case "material":
             materialPath = path.join(
@@ -91,7 +86,6 @@ async function handleUpload(req, res) {
             .status(400)
             .json({ message: "Material details not labelled correctly!" });
 
-      console.log("final phase ", materialName, course, prof);
       if (!materialName || !course || !prof)
          return res
             .status(400)
@@ -125,7 +119,7 @@ async function handleUpload(req, res) {
             .status(200)
             .json({ message: "Successfully added study material!" });
       } catch (error) {
-         return res.status(500).json({ message: "Internal server error!" });
+         return res.status(500).json({ message: "Internal server error! " + error });
       }
    }
 
@@ -150,8 +144,8 @@ async function getUserUploads(req, res) {
    // from user document using user id
    const user = await User.findOne(
       { _id: userID },
-      { _id: false, uploads: true }
-   );
+      { uploads: true }
+   ).populate("uploads");
    
    res.status(200).json({ result: user.uploads });
 }
@@ -168,19 +162,25 @@ async function deleteUpload(req, res) {
          .json({ message: "Needed material ID for deletion!" });
 
    try {
-      // deleting the study material first
+      // deleting the study material doc first
+      console.log("deleting document")
       const deletedMaterial = await StudyMaterial.findOneAndDelete({
          _id: materialID,
       });
 
+      // deleting the file in storage
+      console.log("unlinking file")
+      await fs.promises.unlink(path.join(__dirname, deletedMaterial.link))
+
       // fetching only neccessary details
       const user = await User.findOne(
          { _id: userID },
-         { _id: false, uploads: true }
+         { uploads: true }
       );
 
       // removing the study material id from
       // uploads array of user
+      console.log("removing from array")
       const deleteIndex = user.uploads.indexOf(deletedMaterial._id);
       if (deleteIndex >= 0 && deleteIndex < user.uploads.length) {
          user.uploads.splice(deleteIndex, 1);
@@ -189,6 +189,7 @@ async function deleteUpload(req, res) {
 
       res.status(200).json({ message: "Successfully deleted material!" });
    } catch (error) {
+      console.log("del upload err " + error)
       res.status(404).json({ message: "Couldn't delete material! " + error });
    }
 }

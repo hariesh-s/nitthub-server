@@ -15,9 +15,12 @@ const userSchema = new Schema({
    },
    uploads: {
       type: Array,
+      default: [Schema.Types.ObjectId],
+      ref: "StudyMaterial",
    },
    downloads: {
       type: Array,
+      default: [],
    }
 });
 

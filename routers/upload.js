@@ -9,6 +9,6 @@ const isAuthorized = require("../middlewares/authorize");
 router.use(isAuthorized);
 router.get("/", getUserUploads);
 router.post("/", handleUpload);
-router.delete("/:id", deleteUpload);
+router.delete("/:materialID", deleteUpload);
 
 module.exports = router;
